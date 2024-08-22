@@ -1,6 +1,7 @@
 package com.SpringSecurity.SpringSecurityAppliication.Entity;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -10,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 
 import com.SpringSecurity.SpringSecurityAppliication.Entity.enums.Permissions;
 import com.SpringSecurity.SpringSecurityAppliication.Entity.enums.Role;
+import com.SpringSecurity.SpringSecurityAppliication.utils.PermissionMapping;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.ElementCollection;
@@ -50,19 +52,20 @@ public class User implements UserDetails {
     @ElementCollection(fetch = FetchType.EAGER)  // we want to fetch roles as soon as we use user
     @Enumerated(EnumType.STRING)
     private Set<Role> roles;
-
-    @ElementCollection(fetch = FetchType.EAGER)  // we want to fetch permissions as soon as we use user
-    @Enumerated(EnumType.STRING)
-    private Set<Permissions> permissions;
+  
+     /* we delete permission bcz we donn't want to store the permission inside the database (depends on useCase) */
 
     @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        Set<SimpleGrantedAuthority> authorities =  roles.stream().map(role->new SimpleGrantedAuthority("ROLE_"+role.name()))
-        .collect(Collectors.toSet());  // toSet bcz our role is set , use toList when we use list instead of set
+    public Collection<? extends GrantedAuthority> getAuthorities() {  // it will  take two properties role and permission for that role ,so first find role then iterate the permission for that role
+       Set<SimpleGrantedAuthority>authorities = new HashSet<>();
+       roles.forEach(
+        role->{
 
-        permissions.forEach(
-            permission -> authorities.add(new SimpleGrantedAuthority(permission.name()))
-        );
+            Set<SimpleGrantedAuthority> permission = PermissionMapping.getAuthForRoles(role);
+            authorities.addAll(permission);
+            authorities.add(new SimpleGrantedAuthority("ROLE_"+role.name()));
+        }
+       );
         return authorities;
     }
 
