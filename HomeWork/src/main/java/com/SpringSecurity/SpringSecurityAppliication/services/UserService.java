@@ -40,7 +40,7 @@ public class UserService implements UserDetailsService {
     }
 
     public User getUserByEmail(String email){
-      return userRepo.findByEmail(email).orElseThrow(()->new ResourceNotFoundException("email not found:"+email));
+      return userRepo.findByEmail(email).orElseThrow(null);
     }
 
       // implementing signup api 

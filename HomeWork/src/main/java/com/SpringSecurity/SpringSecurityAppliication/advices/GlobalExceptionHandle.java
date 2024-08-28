@@ -34,5 +34,9 @@ public class GlobalExceptionHandle {
          return new ResponseEntity<>(apiError , HttpStatus.UNAUTHORIZED);
         }
 
-     
+        @ExceptionHandler(AccessDeniedException.class)
+        public ResponseEntity<ApiError> handlingAccessDeniedException(AccessDeniedException exception){
+         ApiError apiError = new ApiError(exception.getLocalizedMessage() , HttpStatus.FORBIDDEN);
+         return new ResponseEntity<>(apiError , HttpStatus.FORBIDDEN);
+        }
 }
